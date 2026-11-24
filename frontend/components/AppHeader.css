@@ -1,0 +1,48 @@
+.app-header {
+  margin-bottom: 16px;
+}
+
+.app-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.app-header-title {
+  font-size: 22px;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.app-nav-link {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #c9d1d9;
+  background: #fff;
+  color: #1c2530;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.app-nav-link:hover {
+  background: #eef1f4;
+}
+
+.app-nav-link.is-active {
+  background: #1f7a4d;
+  border-color: #1f7a4d;
+  color: #fff;
+}

@@ -1,0 +1,393 @@
+.dash {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.dash-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.dash-sub {
+  color: #5b6673;
+  font-size: 14px;
+}
+
+/* ----- add product form ----- */
+.add-form {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+}
+
+.add-form-title {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.add-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ----- product grid ----- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 10px;
+  background: #fff;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  text-align: center;
+  color: inherit;
+}
+
+.product-card:hover {
+  border-color: #1f7a4d;
+}
+
+.product-card.is-low {
+  border-color: #f0a020;
+  background: #fff8e8;
+}
+
+.product-card.is-out {
+  background: #eceff2;
+}
+
+.product-card.is-out .product-initial,
+.product-card.is-out .product-name,
+.product-card.is-out .product-price {
+  opacity: 0.55;
+}
+
+.product-card.is-out .product-stock {
+  color: #b42318;
+  font-weight: 600;
+}
+
+.product-initial {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #e3f2ea;
+  color: #1f7a4d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.product-name {
+  font-weight: 600;
+}
+
+.product-price {
+  color: #1f7a4d;
+  font-weight: 600;
+}
+
+.product-stock {
+  font-size: 13px;
+  color: #5b6673;
+}
+
+.product-card.is-low .product-stock {
+  color: #b26a00;
+  font-weight: 600;
+}
+
+/* ----- popup ----- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 10;
+}
+
+.modal {
+  width: 100%;
+  max-width: 360px;
+  max-height: 100%;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.modal-sub {
+  color: #5b6673;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.mode-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 8px 4px;
+  border: 1px solid #c9d1d9;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.mode-tab:hover {
+  background: #eef1f4;
+}
+
+.mode-tab.is-active {
+  background: #1f7a4d;
+  border-color: #1f7a4d;
+  color: #fff;
+}
+
+.mode-tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.modal-label {
+  font-size: 14px;
+  color: #5b6673;
+  margin-bottom: 10px;
+}
+
+.qty-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.qty-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid #c9d1d9;
+  background: #fff;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.qty-btn:hover {
+  background: #eef1f4;
+}
+
+.amount-input {
+  width: 110px;
+  padding: 6px;
+  border: 1px solid #c9d1d9;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.modal-info {
+  margin-bottom: 14px;
+  font-weight: 600;
+  min-height: 1.4em;
+}
+
+.modal-info.is-bad {
+  color: #b42318;
+}
+
+.modal .field {
+  text-align: left;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+/* ----- small message at the bottom ----- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: #1c2530;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 24px;
+  font-size: 14px;
+  z-index: 20;
+  max-width: calc(100% - 32px);
+  text-align: center;
+}
+/* ----- product photos ----- */
+.product-photo {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #eef1f4;
+}
+
+.product-photo.is-big {
+  width: 110px;
+  height: 110px;
+}
+
+.product-initial.is-big {
+  width: 80px;
+  height: 80px;
+  font-size: 34px;
+}
+
+.product-card.is-out .product-photo {
+  opacity: 0.55;
+}
+
+.modal-picture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.photo-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #b42318;
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.link-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.photo-field-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.photo-preview {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* ----- product photos ----- */
+.product-photo {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #eef1f4;
+}
+
+.product-photo.is-big {
+  width: 110px;
+  height: 110px;
+}
+
+.product-initial.is-big {
+  width: 80px;
+  height: 80px;
+  font-size: 34px;
+}
+
+.product-card.is-out .product-photo {
+  opacity: 0.55;
+}
+
+.modal-picture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.photo-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #b42318;
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.link-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.photo-field-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.photo-preview {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+}

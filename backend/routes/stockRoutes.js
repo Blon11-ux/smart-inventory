@@ -7,7 +7,7 @@ const { getReorderSuggestions } = require("../services/smartStock");
 const router = express.Router();
 
 function isValidId(id) {
-  return mongoose.Types.ObjectId.isValid(id);
+  return typeof id === "string" && mongoose.Types.ObjectId.isValid(id);
 }
 
 // Turns a value into a number, or NaN if it is missing or not a number
@@ -25,26 +25,29 @@ function numberOr(value, fallback) {
 // POST /api/stock/sale  -> body: { productId, quantity, note }
 router.post("/sale", async (req, res) => {
   try {
-    const { productId, quantity, note } = req.body;
+    const { productId, quantity, note } = req.body || {};
     const qty = parseAmount(quantity);
 
     if (!isValidId(productId)) {
       return res.status(400).json({ message: "A valid productId is required" });
     }
     if (!Number.isFinite(qty) || qty <= 0) {
-      return res.status(400).json({ message: "quantity must be a number greater than 0" });
+      return res
+        .status(400)
+        .json({ message: "quantity must be a number greater than 0" });
     }
 
-    // Subtract only if there is enough stock. The check and the update
-    // happen in one step, so two sales at once cannot make stock negative.
+    // Subtract only if this shop's product has enough stock. The check and
+    // the update happen in one step, so two sales at once cannot make stock
+    // negative.
     const product = await Product.findOneAndUpdate(
-      { _id: productId, stock: { $gte: qty } },
+      { _id: productId, shop: req.userId, stock: { $gte: qty } },
       { $inc: { stock: -qty } },
       { new: true }
     );
 
     if (!product) {
-      const exists = await Product.exists({ _id: productId });
+      const exists = await Product.exists({ _id: productId, shop: req.userId });
       if (!exists) {
         return res.status(404).json({ message: "Product not found" });
       }
@@ -52,6 +55,7 @@ router.post("/sale", async (req, res) => {
     }
 
     const movement = await StockMovement.create({
+      shop: req.userId,
       product: product._id,
       type: "sale",
       quantity: qty,
@@ -69,18 +73,20 @@ router.post("/sale", async (req, res) => {
 // POST /api/stock/restock  -> body: { productId, quantity, note }
 router.post("/restock", async (req, res) => {
   try {
-    const { productId, quantity, note } = req.body;
+    const { productId, quantity, note } = req.body || {};
     const qty = parseAmount(quantity);
 
     if (!isValidId(productId)) {
       return res.status(400).json({ message: "A valid productId is required" });
     }
     if (!Number.isFinite(qty) || qty <= 0) {
-      return res.status(400).json({ message: "quantity must be a number greater than 0" });
+      return res
+        .status(400)
+        .json({ message: "quantity must be a number greater than 0" });
     }
 
-    const product = await Product.findByIdAndUpdate(
-      productId,
+    const product = await Product.findOneAndUpdate(
+      { _id: productId, shop: req.userId },
       { $inc: { stock: qty } },
       { new: true }
     );
@@ -89,6 +95,7 @@ router.post("/restock", async (req, res) => {
     }
 
     const movement = await StockMovement.create({
+      shop: req.userId,
       product: product._id,
       type: "restock",
       quantity: qty,
@@ -106,20 +113,22 @@ router.post("/restock", async (req, res) => {
 // POST /api/stock/count  -> body: { productId, counted, note }
 router.post("/count", async (req, res) => {
   try {
-    const { productId, counted, note } = req.body;
+    const { productId, counted, note } = req.body || {};
     const countedQty = parseAmount(counted);
 
     if (!isValidId(productId)) {
       return res.status(400).json({ message: "A valid productId is required" });
     }
     if (!Number.isFinite(countedQty) || countedQty < 0) {
-      return res.status(400).json({ message: "counted must be a number, 0 or more" });
+      return res
+        .status(400)
+        .json({ message: "counted must be a number, 0 or more" });
     }
 
     // new: false returns the product as it was BEFORE the update,
     // so we can see what the system expected.
-    const before = await Product.findByIdAndUpdate(
-      productId,
+    const before = await Product.findOneAndUpdate(
+      { _id: productId, shop: req.userId },
       { stock: countedQty },
       { new: false }
     );
@@ -130,6 +139,7 @@ router.post("/count", async (req, res) => {
     const change = countedQty - before.stock;
 
     const movement = await StockMovement.create({
+      shop: req.userId,
       product: before._id,
       type: "count",
       quantity: countedQty,
@@ -153,12 +163,14 @@ router.post("/count", async (req, res) => {
 // GET /api/stock/movements?productId=...  -> latest 50 records
 router.get("/movements", async (req, res) => {
   try {
-    const filter = {};
-    if (req.query.productId) {
-      if (!isValidId(req.query.productId)) {
+    const filter = { shop: req.userId };
+
+    const { productId } = req.query;
+    if (productId) {
+      if (!isValidId(productId)) {
         return res.status(400).json({ message: "Invalid productId" });
       }
-      filter.product = req.query.productId;
+      filter.product = productId;
     }
 
     const movements = await StockMovement.find(filter)
@@ -175,7 +187,7 @@ router.get("/movements", async (req, res) => {
 // GET /api/stock/reorder-suggestions?days=14&leadTimeDays=3
 router.get("/reorder-suggestions", async (req, res) => {
   try {
-    const suggestions = await getReorderSuggestions({
+    const suggestions = await getReorderSuggestions(req.userId, {
       days: numberOr(req.query.days, 14),
       leadTimeDays: numberOr(req.query.leadTimeDays, 3),
     });

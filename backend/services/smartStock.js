@@ -1,19 +1,33 @@
+const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const StockMovement = require("../models/StockMovement");
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-async function getReorderSuggestions({
-  days = 14,         // how many days of history to look at
-  leadTimeDays = 3,  // how long the supplier takes to deliver
-  safetyDays = 2,    // extra buffer
-  targetDays = 14,   // order enough to last this many days
-} = {}) {
+async function getReorderSuggestions(
+  shopId,
+  {
+    days = 14,         // how many days of history to look at
+    leadTimeDays = 3,  // how long the supplier takes to deliver
+    safetyDays = 2,    // extra buffer
+    targetDays = 14,   // order enough to last this many days
+  } = {}
+) {
   const since = new Date(Date.now() - days * DAY_MS);
+
+  // Aggregation does not convert text ids automatically (normal queries do),
+  // so we convert the shop id ourselves.
+  const shopObjectId = new mongoose.Types.ObjectId(shopId);
 
   // Add up how many units left the shelf per product (sales and count drops)
   const usageRows = await StockMovement.aggregate([
-    { $match: { createdAt: { $gte: since }, change: { $lt: 0 } } },
+    {
+      $match: {
+        shop: shopObjectId,
+        createdAt: { $gte: since },
+        change: { $lt: 0 },
+      },
+    },
     { $group: { _id: "$product", used: { $sum: { $abs: "$change" } } } },
   ]);
 
@@ -22,7 +36,7 @@ async function getReorderSuggestions({
     usageByProduct[String(row._id)] = row.used;
   }
 
-  const products = await Product.find();
+  const products = await Product.find({ shop: shopId });
   const suggestions = [];
 
   for (const product of products) {
@@ -36,7 +50,8 @@ async function getReorderSuggestions({
       daysLeft = product.stock / avgPerDay;
     }
 
-    const runningOutSoon = daysLeft !== null && daysLeft <= leadTimeDays + safetyDays;
+    const runningOutSoon =
+      daysLeft !== null && daysLeft <= leadTimeDays + safetyDays;
     const belowMinimum = product.stock <= product.minStock;
 
     if (!runningOutSoon && !belowMinimum) continue; // this product is fine
